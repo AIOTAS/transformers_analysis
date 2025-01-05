@@ -133,7 +133,63 @@ tokenizer.encode_plus(text=test_news[0], text_pair=test_news[1], padding="max_le
 
 #### 2.1 bert模型架构
 
+使用`AutoModel`来加载`bert-base-uncased`预训练模型时：
 
+```python
+from transformers import AutoModel , AutoModelForSequenceClassification
+model_name = "models/bert-base-uncased"
+model = AutoModel.from_pretrained(model_name)
+```
+
+![image-20250105090205082](imgs/image-20250105090205082.png)
+
+如上图所示，`model`包含`embeddings`、`encoder layers`、`pooler`三大部分组成.
+
+- `embeddings`
+  - 包含`word_embeddings`、`position_embeddings`、`token_type_embeddings`
+- `encode part`
+  - 12 * `BertLayer`
+  - 只有`Transformer`的`Encoder`部分
+
+#### 2.2 `AutoModel`加载的`bert-base-uncased`模型的参数统计
+
+```python
+# 计算参数量
+total_params = 0
+# 可学习的参数
+total_learnable_params = 0
+# embeddings 参数统计
+total_embedding_params = 0
+# encoder layers 参数统计
+total_encoder_params = 0
+# pooler 参数统计
+total_pooler_params = 0
+
+for name , param in model.named_parameters():
+    total_params += param.numel()
+    if param.requires_grad == True:
+        total_learnable_params += param.numel()
+    if "embedding" in name:
+        total_embedding_params += param.numel()
+    if "encoder" in name:
+        total_encoder_params += param.numel()
+    if "pooler" in name:
+        total_pooler_params += param.numel()
+
+print(f"{total_params=}")
+print(f"{total_learnable_params=}")
+print(f"{total_embedding_params=}")
+print(f"{total_encoder_params=}")
+print(f"{total_pooler_params=}")
+
+# 计算占比
+params = {"total_embedding_params" : total_embedding_params, "total_encoder_params": total_encoder_params , "total_pooler_params": total_pooler_params}
+all_params_num = sum(params.values())
+for name , param in params.items():
+    print(name , param / all_params_num)
+```
+
+![image-20250105094202625](imgs/image-20250105094202625.png)
 
 
 
